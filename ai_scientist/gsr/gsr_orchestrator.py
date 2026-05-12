@@ -11,10 +11,8 @@ import json
 import logging
 import os
 import os.path as osp
-import shutil
 from datetime import datetime
-from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import List, Optional
 
 from ai_scientist.treesearch.bfts_utils import edit_bfts_config_file, idea_to_markdown
 from ai_scientist.treesearch.perform_experiments_bfts_with_agentmanager import (

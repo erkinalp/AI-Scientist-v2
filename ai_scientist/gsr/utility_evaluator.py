@@ -13,11 +13,7 @@ import logging
 import math
 from typing import Any, Dict, List, Optional, Tuple
 
-from ai_scientist.llm import (
-    create_client,
-    get_batch_responses_from_llm,
-    get_response_from_llm,
-)
+from ai_scientist.llm import create_client, get_response_from_llm
 
 from .config import GSRConfig
 

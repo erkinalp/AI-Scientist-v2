@@ -21,13 +21,11 @@ import argparse
 import json
 import os
 import os.path as osp
-import shutil
 import sys
-from datetime import datetime
 
 from ai_scientist.gsr.config import GSRConfig
 from ai_scientist.gsr.gsr_orchestrator import GSROrchestrator
-from ai_scientist.llm import AVAILABLE_LLMS, create_client
+from ai_scientist.llm import create_client
 from ai_scientist.perform_icbinb_writeup import (
     gather_citations,
     perform_writeup as perform_icbinb_writeup,
