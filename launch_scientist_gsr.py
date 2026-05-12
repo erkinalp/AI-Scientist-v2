@@ -269,12 +269,14 @@ def main():
         for attempt in range(args.writeup_retries):
             print(f"Writeup attempt {attempt + 1} of {args.writeup_retries}")
             if args.writeup_type == "normal":
+                # perform_writeup handles its own citation gathering
+                # via num_cite_rounds, so we don't pass citations_text.
                 writeup_success = perform_writeup(
                     base_folder=idea_dir,
+                    num_cite_rounds=args.num_cite_rounds,
                     small_model=args.model_writeup_small,
                     big_model=args.model_writeup,
                     page_limit=8,
-                    citations_text=citations_text,
                 )
             else:
                 writeup_success = perform_icbinb_writeup(

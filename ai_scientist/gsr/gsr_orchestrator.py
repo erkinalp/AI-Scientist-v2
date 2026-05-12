@@ -121,10 +121,9 @@ class GSROrchestrator:
             )
 
             # (d-e) ANCHOR + REFINE: check if we should generate
-            if self.task_manager.should_refine():
-                anchor, _ = self.task_manager.select_anchor()
-                if anchor is not None:
-                    self._refine(anchor)
+            anchor = self.task_manager.try_refine()
+            if anchor is not None:
+                self._refine(anchor)
 
             # Checkpoint
             self._save_checkpoint(t)

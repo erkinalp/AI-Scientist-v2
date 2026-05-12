@@ -175,15 +175,21 @@ class TaskManager:
     # Should-refine gate (Alg. 2, Line 8)
     # ------------------------------------------------------------------
 
-    def should_refine(self) -> bool:
-        """Check if we should advance the refinement level and generate."""
+    def try_refine(self) -> Optional["TaskState"]:
+        """Check the refinement gate and return the anchor if we should refine.
+
+        Returns the anchor task if refinement should proceed, or None.
+        This avoids the redundant double-call to select_anchor().
+        """
         if self.current_level >= self.config.max_refinement_levels:
-            return False
+            return None
         anchor, width = self.select_anchor()
         if anchor is None:
-            return False
+            return None
         epsilon_u_m = self.config.epsilon_u_0 * (2.0**-self.current_level)
-        return width <= self.config.confidence_gate * epsilon_u_m
+        if width <= self.config.confidence_gate * epsilon_u_m:
+            return anchor
+        return None
 
     def advance_level(self) -> int:
         """Step up m <- m + 1 (Alg. 2, Line 9)."""
@@ -262,7 +268,17 @@ class TaskManager:
         return len(self.active_task_ids)
 
     def get_status_summary(self) -> dict:
-        """Return a summary dict for logging / checkpointing."""
+        """Return a summary dict for logging / checkpointing.
+
+        Non-finite floats (inf, -inf) are replaced with None so the
+        output is valid RFC 8259 JSON for non-Python parsers.
+        """
+
+        def _safe(v: float) -> Optional[float]:
+            if math.isinf(v) or math.isnan(v):
+                return None
+            return v
+
         return {
             "global_step": self.global_step,
             "current_level": self.current_level,
@@ -272,9 +288,9 @@ class TaskManager:
                 tid: {
                     "title": self.tasks[tid].idea.get("Title", ""),
                     "evals": self.tasks[tid].num_evaluations,
-                    "incumbent": self.tasks[tid].incumbent,
-                    "ucb": self.tasks[tid].ucb,
-                    "lcb": self.tasks[tid].lcb,
+                    "incumbent": _safe(self.tasks[tid].incumbent),
+                    "ucb": _safe(self.tasks[tid].ucb),
+                    "lcb": _safe(self.tasks[tid].lcb),
                     "level": self.tasks[tid].refinement_level,
                 }
                 for tid in self.active_task_ids

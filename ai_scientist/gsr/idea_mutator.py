@@ -78,20 +78,33 @@ class IdeaMutator:
         """Compute rho_m = rho_0 * 2^{-m}."""
         return self.config.initial_mutation_ratio * (2.0**-level)
 
-    def _select_fields_to_edit(self, level: int) -> tuple[list[str], list[str]]:
-        """Decide which fields to edit vs. keep at this refinement level."""
+    def _select_fields_to_edit(
+        self, level: int, attempt: int = 0
+    ) -> tuple[list[str], list[str]]:
+        """Decide which fields to edit vs. keep at this refinement level.
+
+        At fine levels (>=3), rotates which fields are selected across
+        attempts so that different children in a batch mutate different
+        fields rather than always targeting the first element.
+        """
         rho = self.mutation_ratio(level)
         total_fields = len(IDEA_FIELDS)
         num_to_change = max(1, round(rho * total_fields))
 
         if level == 0:
-            fields_to_edit = list(IDEA_FIELDS)
+            candidate_fields = list(IDEA_FIELDS)
         elif level <= 2:
-            fields_to_edit = list(COARSE_FIELDS)
+            candidate_fields = list(COARSE_FIELDS)
         else:
-            fields_to_edit = list(FINE_FIELDS)
+            candidate_fields = list(FINE_FIELDS)
 
-        fields_to_edit = fields_to_edit[:num_to_change]
+        # Rotate the candidate list by `attempt` so each child in a batch
+        # targets different fields when num_to_change < len(candidates).
+        if len(candidate_fields) > num_to_change:
+            offset = attempt % len(candidate_fields)
+            candidate_fields = candidate_fields[offset:] + candidate_fields[:offset]
+
+        fields_to_edit = candidate_fields[:num_to_change]
         fields_to_keep = [f for f in IDEA_FIELDS if f not in fields_to_edit]
         return fields_to_edit, fields_to_keep
 
@@ -108,22 +121,23 @@ class IdeaMutator:
         Returns:
             List of mutated idea dicts.
         """
-        J = batch_size or self.config.generation_batch_size
+        J = batch_size if batch_size is not None else self.config.generation_batch_size
         rho = self.mutation_ratio(level)
-        fields_to_edit, fields_to_keep = self._select_fields_to_edit(level)
-        num_to_change = len(fields_to_edit)
 
         logger.info(
-            "Generating %d mutations at level %d (rho=%.2f, editing %s)",
+            "Generating %d mutations at level %d (rho=%.2f)",
             J,
             level,
             rho,
-            fields_to_edit,
         )
 
         children: List[dict] = []
         for j in range(J):
             try:
+                fields_to_edit, fields_to_keep = self._select_fields_to_edit(
+                    level, attempt=j
+                )
+                num_to_change = len(fields_to_edit)
                 child = self._generate_single(
                     anchor_idea,
                     level,
