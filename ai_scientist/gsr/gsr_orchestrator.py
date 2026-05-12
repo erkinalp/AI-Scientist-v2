@@ -162,16 +162,17 @@ class GSROrchestrator:
         )
         os.makedirs(idea_dir, exist_ok=True)
 
-        # Write idea to files
+        # Write idea to files — include code context in JSON so BFTS
+        # can read it via load_task_desc (mirrors launch_scientist_bfts.py).
         idea_json_path = osp.join(idea_dir, "idea.json")
+        idea_for_bfts = dict(task.idea)
+        if self.code_context is not None:
+            idea_for_bfts["Code"] = self.code_context
         with open(idea_json_path, "w") as f:
-            json.dump(task.idea, f, indent=4)
+            json.dump(idea_for_bfts, f, indent=4)
 
         idea_md_path = osp.join(idea_dir, "idea.md")
-        idea_with_code = dict(task.idea)
-        if self.code_context is not None:
-            idea_with_code["Code"] = self.code_context
-        idea_to_markdown(idea_with_code, idea_md_path, None)
+        idea_to_markdown(idea_for_bfts, idea_md_path, None)
 
         # Prepare BFTS config pointing to this idea
         run_config_path = edit_bfts_config_file(
