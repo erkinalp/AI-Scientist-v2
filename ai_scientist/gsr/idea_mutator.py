@@ -88,8 +88,6 @@ class IdeaMutator:
         fields rather than always targeting the first element.
         """
         rho = self.mutation_ratio(level)
-        total_fields = len(IDEA_FIELDS)
-        num_to_change = max(1, round(rho * total_fields))
 
         if level == 0:
             candidate_fields = list(IDEA_FIELDS)
@@ -97,6 +95,8 @@ class IdeaMutator:
             candidate_fields = list(COARSE_FIELDS)
         else:
             candidate_fields = list(FINE_FIELDS)
+
+        num_to_change = max(1, round(rho * len(candidate_fields)))
 
         # Rotate the candidate list by `attempt` so each child in a batch
         # targets different fields when num_to_change < len(candidates).

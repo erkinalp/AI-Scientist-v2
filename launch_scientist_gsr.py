@@ -21,6 +21,7 @@ import argparse
 import json
 import os
 import os.path as osp
+import shutil
 import sys
 
 from ai_scientist.gsr.config import GSRConfig
@@ -247,11 +248,22 @@ def main():
     print(f"Utility: {best_info['incumbent_utility']:.4f}")
     print(f"Experiment dir: {idea_dir}")
 
+    # Copy experiment_results to top-level for aggregate_plots / writeup,
+    # mirroring the pattern in launch_scientist_bfts.py:257-267.
+    exp_results_src = osp.join(idea_dir, "logs/0-run/experiment_results")
+    exp_results_dst = osp.join(idea_dir, "experiment_results")
+    if os.path.exists(exp_results_src):
+        shutil.copytree(exp_results_src, exp_results_dst, dirs_exist_ok=True)
+
     # Aggregate plots
     try:
         aggregate_plots(base_folder=idea_dir, model=args.model_agg_plots)
     except Exception as e:
         print(f"Plot aggregation failed: {e}")
+
+    # Clean up the copy after plotting
+    if os.path.exists(exp_results_dst):
+        shutil.rmtree(exp_results_dst)
 
     # Save token tracker
     _save_token_tracker(idea_dir)
