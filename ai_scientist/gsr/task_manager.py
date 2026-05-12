@@ -213,14 +213,16 @@ class TaskManager:
         task = self.tasks[task_id]
         task.num_evaluations += 1
         task.utility_observations.append(utility)
+        # Update experiment_dir only when this is the best run so far,
+        # so the writeup uses artifacts from the highest-utility evaluation.
+        if experiment_dir is not None and utility >= task.incumbent:
+            task.experiment_dir = experiment_dir
         task.incumbent = max(task.incumbent, utility)
         if metric is not None:
             task.metric_observations.append(metric)
             if task.best_metric is None or metric > task.best_metric:
                 task.best_metric = metric
         task.stages_completed = max(task.stages_completed, stages_completed)
-        if experiment_dir is not None:
-            task.experiment_dir = experiment_dir
         self.global_step += 1
         self._update_confidence_intervals()
 

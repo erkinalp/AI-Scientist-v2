@@ -227,32 +227,34 @@ class GSROrchestrator:
     # ------------------------------------------------------------------
 
     def _refine(self, anchor: TaskState) -> None:
-        """Advance refinement level and generate child ideas."""
-        new_level = self.task_manager.advance_level()
+        """Generate child ideas and advance refinement level only on success."""
+        next_level = self.task_manager.current_level + 1
         logger.info(
             "REFINE: Mutating anchor '%s' at level %d",
             anchor.idea.get("Title", "?"),
-            new_level,
+            next_level,
         )
 
         children = self.mutator.generate(
             anchor.idea,
-            level=new_level,
+            level=next_level,
             batch_size=self.gsr_config.generation_batch_size,
         )
 
         if children:
+            # Only advance the level if we successfully generated children
+            self.task_manager.advance_level()
             self.task_manager.add_tasks_batch(
-                children, level=new_level, parent_id=anchor.task_id
+                children, level=next_level, parent_id=anchor.task_id
             )
-            logger.info("Added %d child tasks at level %d", len(children), new_level)
+            logger.info("Added %d child tasks at level %d", len(children), next_level)
 
             # Save generated children
-            children_path = osp.join(self.gsr_dir, f"mutations_level_{new_level}.json")
+            children_path = osp.join(self.gsr_dir, f"mutations_level_{next_level}.json")
             with open(children_path, "w") as f:
                 json.dump(children, f, indent=2)
         else:
-            logger.warning("No valid mutations generated at level %d", new_level)
+            logger.warning("No valid mutations generated at level %d", next_level)
 
     # ------------------------------------------------------------------
     # Checkpointing and summary
