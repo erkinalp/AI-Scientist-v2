@@ -34,8 +34,8 @@ class GSRConfig:
     committee_size: int = 5
     max_refinement_levels: int = 5
     evaluation_depth: int = 1
-    model_mutator: str = "gpt-4o-2024-11-20"
-    model_evaluator: str = "gpt-4o-2024-11-20"
+    model_mutator: str = "deepseek-v3.2"
+    model_evaluator: str = "deepseek-v3.2"
     temperature_mutator: float = 0.9
     temperature_evaluator: float = 0.3
     epsilon_u_0: float = 1.0

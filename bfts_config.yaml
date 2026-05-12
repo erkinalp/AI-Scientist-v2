@@ -98,8 +98,8 @@ agent:
 #   committee_size: 5               # number of LLM committee voters (K)
 #   max_refinement_levels: 5        # upper bound on coarse-to-fine levels
 #   evaluation_depth: 1             # BFTS stages per evaluation step
-#   model_mutator: gpt-4o-2024-11-20
-#   model_evaluator: gpt-4o-2024-11-20
+#   model_mutator: deepseek-v3.2
+#   model_evaluator: deepseek-v3.2
 #   temperature_mutator: 0.9
 #   temperature_evaluator: 0.3
 #   epsilon_u_0: 1.0                # initial utility resolution

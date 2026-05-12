@@ -13,8 +13,8 @@ Usage:
         --load_ideas ai_scientist/ideas/my_topic.json \\
         --budget 20 \\
         --generation_batch_size 3 \\
-        --model_writeup o1-preview-2024-09-12 \\
-        --model_review gpt-4o-2024-11-20
+        --model_writeup deepseek-v3.2 \\
+        --model_review deepseek-v3.2
 """
 
 import argparse
@@ -107,13 +107,13 @@ def parse_arguments():
     parser.add_argument(
         "--model_mutator",
         type=str,
-        default="gpt-4o-2024-11-20",
+        default="deepseek-v3.2",
         help="LLM model for idea mutation",
     )
     parser.add_argument(
         "--model_evaluator",
         type=str,
-        default="gpt-4o-2024-11-20",
+        default="deepseek-v3.2",
         help="LLM model for committee evaluation",
     )
 
@@ -128,19 +128,19 @@ def parse_arguments():
     parser.add_argument(
         "--model_writeup",
         type=str,
-        default="o1-preview-2024-09-12",
+        default="deepseek-v3.2",
         help="Model for paper writeup",
     )
     parser.add_argument(
         "--model_writeup_small",
         type=str,
-        default="gpt-4o-2024-05-13",
+        default="deepseek-v3.2",
         help="Smaller model for writeup",
     )
     parser.add_argument(
         "--model_citation",
         type=str,
-        default="gpt-4o-2024-11-20",
+        default="deepseek-v3.2",
         help="Model for citation gathering",
     )
     parser.add_argument(
@@ -152,13 +152,13 @@ def parse_arguments():
     parser.add_argument(
         "--model_review",
         type=str,
-        default="gpt-4o-2024-11-20",
+        default="deepseek-v3.2",
         help="Model for paper review",
     )
     parser.add_argument(
         "--model_agg_plots",
         type=str,
-        default="o3-mini-2025-01-31",
+        default="deepseek-v3.2",
         help="Model for plot aggregation",
     )
     parser.add_argument(
